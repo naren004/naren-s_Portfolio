@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simple Calculator</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    .calculator {
+      max-width: 300px;
+      margin: 50px auto;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.1);
+    }
+    .display {
+      height: 60px;
+      font-size: 24px;
+      text-align: right;
+      padding: 10px;
+      margin-bottom: 15px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      background-color: #f8f9fa;
+    }
+    .btn-calc {
+      height: 50px;
+      font-size: 18px;
+      margin: 5px;
+    }
+    .btn-equals {
+      background-color: #0d6efd;
+      color: white;
+    }
+    .btn-clear {
+      background-color: #dc3545;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="calculator">
+      <div class="display" id="display">0</div>
+      <div class="row">
+        <div class="col-3">
+          <button class="btn btn-secondary btn-calc w-100" data-value="7">7</button>
+        </div>
+        <div class="col-3">
+          <button class="btn btn-secondary btn-calc w-100" data-value="8">8</button>
+        </div>
+        <div class="col-3">
+          <button class="btn btn-secondary btn-calc w-100" data-value="9">9</button>
+        </div>
+        <div class="col-3">
+          <button class="btn btn-warning btn-calc w-100" data-value="/">÷</button>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-3">
+          <button class="btn btn-secondary btn-calc w-100" data-value="4">4</button>
+        </div>
+        <div class="col-3">
+          <button class="btn btn-secondary btn-calc w-100" data-value="5">5</button>
+        </div>
+        <div class="col-3">
+          <button class="btn btn-secondary btn-calc w-100" data-value="6">6</button>
+        </div>
+        <div class="col-3">
+          <button class="btn btn-warning btn-calc w-100" data-value="*">×</button>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-3">
+          <button class="btn btn-secondary btn-calc w-100" data-value="1">1</button>
+        </div>
+        <div class="col-3">
+          <button class="btn btn-secondary btn-calc w-100" data-value="2">2</button>
+        </div>
+        <div class="col-3">
+          <button class="btn btn-secondary btn-calc w-100" data-value="3">3</button>
+        </div>
+        <div class="col-3">
+          <button class="btn btn-warning btn-calc w-100" data-value="-">-</button>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-3">
+          <button class="btn btn-secondary btn-calc w-100" data-value="0">0</button>
+        </div>
+        <div class="col-3">
+          <button class="btn btn-secondary btn-calc w-100" data-value=".">.</button>
+        </div>
+        <div class="col-3">
+          <button class="btn btn-clear btn-calc w-100" id="clear">C</button>
+        </div>
+        <div class="col-3">
+          <button class="btn btn-warning btn-calc w-100" data-value="+">+</button>
+        </div>
+      </div>
+      <div class="row mt-2">
+        <div class="col-12">
+          <button class="btn btn-equals btn-calc w-100" id="equals">=</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- jQuery and Bootstrap JS -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  
+  <script>
+    $(document).ready(function() {
+      let currentInput = '0';
+      let previousInput = '';
+      let operation = null;
+      let resetScreen = false;
+
+      // Update the display
+      function updateDisplay() {
+        $('#display').text(currentInput);
+      }
+
+      // Handle number buttons
+      $('[data-value]').not('[data-value="+"], [data-value="-"], [data-value="*"], [data-value="/"]').click(function() {
+        const value = $(this).data('value');
+        
+        if (currentInput === '0' || resetScreen) {
+          currentInput = value;
+          resetScreen = false;
+        } else {
+          currentInput += value;
+        }
+        updateDisplay();
+      });
+
+      // Handle operator buttons
+      $('[data-value="+"], [data-value="-"], [data-value="*"], [data-value="/"]').click(function() {
+        if (operation !== null) calculate();
+        previousInput = currentInput;
+        operation = $(this).data('value');
+        resetScreen = true;
+      });
+
+      // Handle decimal point
+      $('[data-value="."]').click(function() {
+        if (resetScreen) {
+          currentInput = '0.';
+          resetScreen = false;
+          updateDisplay();
+          return;
+        }
+        if (!currentInput.includes('.')) {
+          currentInput += '.';
+          updateDisplay();
+        }
+      });
+
+      // Handle clear button
+      $('#clear').click(function() {
+        currentInput = '0';
+        previousInput = '';
+        operation = null;
+        updateDisplay();
+      });
+
+      // Handle equals button
+      $('#equals').click(function() {
+        calculate();
+        operation = null;
+      });
+
+      // Calculation function
+      function calculate() {
+        let result;
+        const prev = parseFloat(previousInput);
+        const current = parseFloat(currentInput);
+        
+        if (isNaN(prev) || isNaN(current)) return;
+        
+        switch (operation) {
+          case '+':
+            result = prev + current;
+            break;
+          case '-':
+            result = prev - current;
+            break;
+          case '*':
+            result = prev * current;
+            break;
+          case '/':
+            result = prev / current;
+            break;
+          default:
+            return;
+        }
+        
+        currentInput = result.toString();
+        resetScreen = true;
+        updateDisplay();
+      }
+
+      // Initialize display
+      updateDisplay();
+    });
+  </script>
+</body>
+</html>
